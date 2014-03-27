@@ -1,0 +1,4 @@
+### Postgresql ###
+------------------
+- Spin up a new db and user
+    ansible-playbook -u root playbooks/postgresql.yml --extra-vars "hosts=apus"

@@ -1,0 +1,29 @@
+#######################
+# Django Project Init #
+#######################
+---
+- hosts: '{{ hosts }}'
+  sudo: yes
+  gather_facts: no
+
+  vars_prompt:
+    dirname: "Directory folder name for project?"
+    gitname: "Git project name?"
+
+  tasks:
+  - name: create virtualenv
+    pip: name=Django virtualenv=/srv/python-environments/{{dirname}} virtualenv_site_packages=yes
+  - name: pull git repo
+    shell: cd /srv/python-environments/{{dirname}} && git init && git remote add origin git@github.com:waterdotorg/{{gitname}}.git && git pull origin master
+  - name: nginx symlink
+    shell: ln -s /srv/python-environments/{{dirname}} /etc/nginx/sites-enabled/{{dirname}}
+  - name: nginx reload
+    service: name=nginx state=reloaded
+  - name: install pip requirements
+    pip: requirements=/srv/python-environments/{{dirname}}/{{requirements}} virtualenv=/srv/python-environments/{{dirname}}
+  - name: gunicorn symlink
+    shell: ln -s /srv/python-environments/{{dirname}}/gunicorn/gunicorn.conf /etc/supervisord/{{dirname}}_gunicorn.conf
+  - name: supervisor reread and update
+    shell: supervisorctl reread && supervisorctl update
+  - name: supervisor start gunicorn
+    supervisorctl: name={{dirname}}_gunicorn state=started
