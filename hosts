@@ -7,9 +7,6 @@ localhost   ansible_connection=local
 [antlia]
 174.143.27.53
 
-[apus]
-174.143.252.167 
-
 [aquarius]
 174.143.26.213
 
